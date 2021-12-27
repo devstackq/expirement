@@ -1,0 +1,56 @@
+Clean arch:
+Следование данному принципу поможет вам получить систему, части которой легко тестируются, независимы от фреймворков, БД и протокола коммуникации с внешним миром (HTTP, RPC, etc). 
+А самой системе будет свойственны понятия разделения ответственности и слабая связность компонентов
+
+DI -Ответственность за обработку зависимостей возлагается на третью сторону, поэтому ни одна часть приложения не будет с ними взаимодействовать.
+ 
+ type Server struct {
+      config *Config
+    }
+
+bad :
+
+func New()*Server{
+    return &Server{
+        config : getConfig()
+    }
+}
+
+good:
+
+    func New(config *Config) *Server {
+      return &Server{
+        config: config,
+      }
+    }
+
+можно юзать dig.New()
+
+func NewGreeter(name string, sender *Sender) *Greeter {
+  return Greeter{name, sender}
+}
+
+func (g Greeter) Greet() error {
+  return g.sender.Send("Hello, " + g.name + "!")
+}
+
+s, err := NewSender()
+if err != nil {
+  panic(err)
+}
+defer s.Close()
+
+g := NewGreeter("Go", s)
+
+g.Greet()
+
+
+    1)код менее связан, изменения в func New(); не затронут зависимый объект(config) наооборот
+    2)проще тестировать, можно мок передать
+    3)Single responsibility;  зависимые объект - Server; своя логика
+    4)Dependency inversion - interface {New} - (A)New(); (B)New(); Poly; это же поможет сделать
+    open/closed;
+
+
+1)dependency inversion- заменить на любой другой бд, gui, cli  и тд. с помощью интерфйесов
+
